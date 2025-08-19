@@ -7,27 +7,34 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $tanggal_kunjungan = now()->toDateString();
 
-        $totalPasien = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)->count();
-        $totalSelesai = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)->where('status', 'Selesai')->count();
-        $totalMenunggu = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)->where('status', 'Terdaftar')->count();
+        // Ambil poli dari request (kalau ada)
+        $filterPoli = $request->get('poli');
 
-        $perPoli = Pendaftaran::select('poli')
-            ->where('tanggal_kunjungan', $tanggal_kunjungan)
-            ->groupBy('poli')
-            ->selectRaw('poli, COUNT(*) as total')
-            ->get();
+        $query = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan);
+
+        if ($filterPoli) {
+            $query->where('poli', $filterPoli);
+        }
+
+        $totalPasien = $query->count();
+        $totalSelesai = (clone $query)->where('status', 'Selesai')->count();
+        $totalMenunggu = (clone $query)->where('status', 'Terdaftar')->count();
+
+        // List poli untuk dropdown
+        $listPoli = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)
+            ->select('poli')
+            ->distinct()
+            ->pluck('poli');
 
         // Ambil semua pendaftaran + relasi pasien
-        $pendaftaran = Pendaftaran::with('pasien')
-            ->where('tanggal_kunjungan', $tanggal_kunjungan)
-            ->get();
+        $pendaftaran = $query->with('pasien')->get();
 
         // Nomor antrian yang sedang dipanggil (paling kecil yang masih Terdaftar)
-        $antrianSekarang = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)
+        $antrianSekarang = (clone $query)
             ->where('status', 'Terdaftar')
             ->orderBy('nomor_antrian', 'asc')
             ->first();
@@ -36,9 +43,10 @@ class DashboardController extends Controller
             'totalPasien',
             'totalSelesai',
             'totalMenunggu',
-            'perPoli',
             'pendaftaran',
-            'antrianSekarang'
+            'antrianSekarang',
+            'listPoli',
+            'filterPoli'
         ));
     }
 }

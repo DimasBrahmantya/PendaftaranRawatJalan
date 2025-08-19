@@ -10,6 +10,22 @@
   <div class="max-w-5xl mx-auto">
     <h1 class="text-2xl font-bold mb-6">📋 Dashboard Monitoring Antrian</h1>
 
+    <!-- Filter Poli -->
+    <form method="GET" class="mb-6 flex items-center space-x-4">
+      <label for="poli" class="font-semibold">Pilih Poli:</label>
+      <select name="poli" id="poli" class="border rounded-lg px-3 py-2">
+        <option value="">Semua Poli</option>
+        @foreach($listPoli as $poli)
+          <option value="{{ $poli }}" {{ $filterPoli == $poli ? 'selected' : '' }}>
+            {{ $poli }}
+          </option>
+        @endforeach
+      </select>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        Filter
+      </button>
+    </form>
+
     <!-- Antrian yang sedang dipanggil -->
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
       <h2 class="text-xl font-semibold">🔔 Antrian Sekarang</h2>
@@ -54,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          @foreach($pendaftaran as $item)
+          @forelse($pendaftaran as $item)
           <tr>
             <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->pasien->nama }}</td>
@@ -69,7 +85,11 @@
               @endif
             </td>
           </tr>
-          @endforeach
+          @empty
+          <tr>
+            <td colspan="6" class="text-center text-gray-500 py-4">Tidak ada data</td>
+          </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
