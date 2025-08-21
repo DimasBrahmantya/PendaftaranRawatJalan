@@ -10,8 +10,6 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $tanggal_kunjungan = now()->toDateString();
-
-        // Ambil poli dari request (kalau ada)
         $filterPoli = $request->get('poli');
 
         $query = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan);
@@ -23,26 +21,28 @@ class DashboardController extends Controller
         $totalPasien = $query->count();
         $totalSelesai = (clone $query)->where('status', 'Selesai')->count();
         $totalMenunggu = (clone $query)->where('status', 'Terdaftar')->count();
+        $totalDipanggil = (clone $query)->where('status', 'Dipanggil')->count();
 
-        // List poli untuk dropdown
         $listPoli = Pendaftaran::where('tanggal_kunjungan', $tanggal_kunjungan)
             ->select('poli')
             ->distinct()
             ->pluck('poli');
 
-        // Ambil semua pendaftaran + relasi pasien
         $pendaftaran = $query->with('pasien')->get();
 
-        // Nomor antrian yang sedang dipanggil (paling kecil yang masih Terdaftar)
+        // cari pasien yang statusnya Dipanggil, kalau kosong ambil Terdaftar pertama
         $antrianSekarang = (clone $query)
-            ->where('status', 'Terdaftar')
+            ->whereIn('status', ['Dipanggil', 'Terdaftar'])
+            ->orderByRaw("FIELD(status, 'Dipanggil', 'Terdaftar')")
             ->orderBy('nomor_antrian', 'asc')
+            ->with('pasien')
             ->first();
 
         return view('dashboard', compact(
             'totalPasien',
             'totalSelesai',
             'totalMenunggu',
+            'totalDipanggil',
             'pendaftaran',
             'antrianSekarang',
             'listPoli',

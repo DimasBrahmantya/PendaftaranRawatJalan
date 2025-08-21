@@ -42,20 +42,38 @@
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
                                     Terdaftar
                                 </span>
+                            @elseif($d->status === 'Dipanggil')
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                    Dipanggil
+                                </span>
                             @else
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
                                     Selesai
                                 </span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-center">
-                            <form action="{{ route('monitoring.updateStatus', $d->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="px-4 py-1.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition font-medium shadow-sm">
-                                    Ubah Status
-                                </button>
-                            </form>
+                        <td class="px-4 py-3 text-center flex gap-2 justify-center">
+                            {{-- Tombol Panggil (hanya kalau Terdaftar) --}}
+                            @if($d->status === 'Terdaftar')
+                                <form action="{{ route('monitoring.panggil', $d->id) }}" method="GET">
+                                    @csrf
+                                    <button type="submit"
+                                        class="px-4 py-1.5 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition font-medium shadow-sm">
+                                        Panggil
+                                    </button>
+                                </form>
+                            @endif
+
+                            {{-- Tombol Selesai (hanya kalau Dipanggil) --}}
+                            @if($d->status === 'Dipanggil')
+                                <form action="{{ route('monitoring.selesai', $d->id) }}" method="GET">
+                                    @csrf
+                                    <button type="submit"
+                                        class="px-4 py-1.5 rounded-lg text-white bg-green-600 hover:bg-green-700 transition font-medium shadow-sm">
+                                        Selesai
+                                    </button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                     @empty

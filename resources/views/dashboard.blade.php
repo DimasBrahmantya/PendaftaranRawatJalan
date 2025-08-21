@@ -77,11 +77,13 @@
             <td class="border border-gray-300 px-4 py-2">{{ $item->poli }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->tanggal_kunjungan }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->nomor_antrian }}</td>
-            <td class="border border-gray-300 px-4 py-2">
-              @if($item->status == 'Terdaftar')
-                <span class="text-yellow-600 font-semibold">Menunggu</span>
+            <td class="border border-gray-300 px-4 py-2 text-center">
+              @if($item->status === 'Terdaftar')
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>
+              @elseif($item->status === 'Dipanggil')
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>
               @else
-                <span class="text-green-600 font-semibold">Selesai</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>
               @endif
             </td>
           </tr>

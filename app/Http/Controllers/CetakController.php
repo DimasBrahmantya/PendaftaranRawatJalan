@@ -11,4 +11,3 @@ class CetakController extends Controller
         return view('cetak', compact('data'));
     }
 }
-
