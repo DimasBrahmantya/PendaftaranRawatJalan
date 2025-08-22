@@ -82,4 +82,10 @@ class PendaftaranController extends Controller
 
         return view('monitoring', compact('data'));
     }
+
+    public function cekKtp(Request $request)
+    {
+        $exists = \App\Models\Pasien::where('no_ktp', $request->no_ktp)->exists();
+        return response()->json(['exists' => $exists]);
+    }
 }
