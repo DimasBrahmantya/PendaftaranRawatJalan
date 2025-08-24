@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Form Pendaftaran Rawat Jalan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tambahkan jQuery untuk AJAX -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -28,9 +30,10 @@
         <!-- No KTP -->
         <div>
           <label class="block font-medium mb-1">No KTP</label>
-          <input type="text" name="no_ktp" placeholder="Masukkan nomor KTP"
+          <input type="text" name="no_ktp" id="no_ktp" maxlength="10" pattern="\d{10}" placeholder="Masukkan nomor KTP (10 digit)"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required>
+          <span id="ktp-warning" class="text-red-600 text-sm hidden">No KTP sudah terdaftar!</span>
         </div>
 
         <!-- Tanggal Lahir -->
@@ -108,6 +111,36 @@
     const jenisPembayaran = document.getElementById('jenis_pembayaran');
     const noBpjsWrapper = document.getElementById('no_bpjs_wrapper');
     const noBpjsInput = document.getElementById('no_bpjs');
+    const noKtpInput = document.getElementById('no_ktp');
+    const ktpWarning = document.getElementById('ktp-warning');
+    const form = document.querySelector('form');
+
+    // Limit input hanya angka dan maksimal 10 digit
+    noKtpInput.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    });
+
+    // AJAX cek KTP duplikat
+    noKtpInput.addEventListener('blur', function () {
+      if (this.value.length === 10) {
+        $.get("{{ route('cek.ktp') }}", {
+          no_ktp: this.value,
+          nama: document.querySelector('input[name="nama"]').value
+        }, function (res) {
+          if (!res.valid){
+            ktpWarning.textContent = "No KTP sudah diguanakan oleh pasien lain!";
+            ktpWarning.classList.remove('hidden');
+            form.querySelector('button[type="submit"]').disabled = true;
+          } else {
+            ktpWarning.classList.add('hidden');
+            form.querySelector('button[type="submit"]').disabled = false;
+          }
+        });
+      } else {
+        ktpWarning.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
+      }
+    });
 
     jenisPembayaran.addEventListener('change', function () {
       if (this.value === 'BPJS') {

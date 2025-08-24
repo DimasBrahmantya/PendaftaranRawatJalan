@@ -17,7 +17,7 @@ return new class extends Migration
         $table->string('poli');
         $table->string('nomor_antrian');
         $table->date('tanggal_kunjungan');
-        $table->enum('status', ['Terdaftar', 'Selesai'])->default('Terdaftar');
+        $table->enum('status', ['Terdaftar', 'Dipanggil','Selesai'])->default('Terdaftar');
         $table->timestamps();
     
     });
