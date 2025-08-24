@@ -8,84 +8,56 @@
 <body class="min-h-screen bg-white text-gray-800">
 
     <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            📋 Monitoring Antrian Hari Ini
-        </h2>
+        <h2 class="text-2xl font-bold mb-6">📋 Monitoring Antrian</h2>
 
-        @if(session('success'))
-            <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 border border-green-300">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <div class="overflow-x-auto rounded-xl shadow-md">
-            <table class="min-w-full border-collapse bg-white text-sm">
-                <thead class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-                    <tr>
-                        <th class="px-4 py-3 text-left">No</th>
-                        <th class="px-4 py-3 text-left">Nama Pasien</th>
-                        <th class="px-4 py-3 text-left">Poli</th>
-                        <th class="px-4 py-3 text-center">Nomor Antrian</th>
-                        <th class="px-4 py-3 text-center">Status</th>
-                        <th class="px-4 py-3 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @forelse($data as $i => $d)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-4 py-3">{{ $i+1 }}</td>
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ $d->pasien->nama }}</td>
-                        <td class="px-4 py-3">{{ $d->poli }}</td>
-                        <td class="px-4 py-3 text-center font-bold text-indigo-600">{{ $d->nomor_antrian }}</td>
-                        <td class="px-4 py-3 text-center">
-                            @if($d->status === 'Terdaftar')
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                                    Terdaftar
-                                </span>
-                            @elseif($d->status === 'Dipanggil')
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                    Dipanggil
-                                </span>
+        <table class="w-full border-collapse">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="px-4 py-2 text-left">No</th>
+                    <th class="px-4 py-2 text-left">Nomor Antrian</th>
+                    <th class="px-4 py-2 text-left">Nama Pasien</th>
+                    <th class="px-4 py-2 text-left">Poli</th>
+                    <th class="px-4 py-2 text-left">Status</th>
+                    <th class="px-4 py-2 text-left">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($data as $d)
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ $loop->iteration }}</td>
+                        <td class="px-4 py-2 font-semibold">{{ $d->nomor_antrian }}</td>
+                        <td class="px-4 py-2">{{ $d->pasien->nama }}</td>
+                        <td class="px-4 py-2">{{ $d->poli }}</td>
+                        <td class="px-4 py-2">
+                            @if($d->status === 'Dipanggil')
+                                <span class="px-2 py-1 text-sm rounded bg-blue-100 text-blue-600">{{ $d->status }}</span>
+                            @elseif($d->status === 'Selesai')
+                                <span class="px-2 py-1 text-sm rounded bg-green-100 text-green-600">{{ $d->status }}</span>
                             @else
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                    Selesai
-                                </span>
+                                <span class="px-2 py-1 text-sm rounded bg-gray-100 text-gray-600">{{ $d->status }}</span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-center flex gap-2 justify-center">
-                            {{-- Tombol Panggil (hanya kalau Terdaftar) --}}
+                        <td class="px-4 py-2 flex gap-2">
                             @if($d->status === 'Terdaftar')
                                 <form action="{{ route('monitoring.panggil', $d->id) }}" method="GET">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-4 py-1.5 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition font-medium shadow-sm">
+                                    <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
                                         Panggil
                                     </button>
                                 </form>
-                            @endif
-
-                            {{-- Tombol Selesai (hanya kalau Dipanggil) --}}
-                            @if($d->status === 'Dipanggil')
+                            @elseif($d->status === 'Dipanggil')
                                 <form action="{{ route('monitoring.selesai', $d->id) }}" method="GET">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-4 py-1.5 rounded-lg text-white bg-green-600 hover:bg-green-700 transition font-medium shadow-sm">
+                                    <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
                                         Selesai
                                     </button>
                                 </form>
+                            @else
+                                <span class="text-gray-400">-</span>
                             @endif
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-                            Belum ada data antrian
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 
 </body>
