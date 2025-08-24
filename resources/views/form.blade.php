@@ -123,8 +123,12 @@
     // AJAX cek KTP duplikat
     noKtpInput.addEventListener('blur', function () {
       if (this.value.length === 10) {
-        $.get("{{ route('cek.ktp') }}", { no_ktp: this.value }, function(res) {
-          if (res.exists) {
+        $.get("{{ route('cek.ktp') }}", {
+          no_ktp: this.value,
+          nama: document.querySelector('input[name="nama"]').value
+        }, function (res) {
+          if (!res.valid){
+            ktpWarning.textContent = "No KTP sudah diguanakan oleh pasien lain!";
             ktpWarning.classList.remove('hidden');
             form.querySelector('button[type="submit"]').disabled = true;
           } else {

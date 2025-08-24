@@ -85,7 +85,19 @@ class PendaftaranController extends Controller
 
     public function cekKtp(Request $request)
     {
-        $exists = \App\Models\Pasien::where('no_ktp', $request->no_ktp)->exists();
-        return response()->json(['exists' => $exists]);
+    $pasien = \App\Models\Pasien::where('no_ktp', $request->no_ktp)->first();
+
+    if ($pasien) {
+        if ($request->has('nama') && $pasien->nama !== $request->nama) {
+            // NIK sama tapi nama beda → tidak boleh
+            return response()->json(['exists' => true, 'valid' => false]);
+        }
+        // NIK sama dan nama sama → boleh daftar lagi
+        return response()->json(['exists' => true, 'valid' => true]);
     }
+
+    // NIK belum ada → boleh
+    return response()->json(['exists' => false, 'valid' => true]);
+    }
+
 }
