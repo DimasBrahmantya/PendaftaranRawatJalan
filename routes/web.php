@@ -19,3 +19,9 @@ Route::post('/monitoring/{id}/update-status', [PendaftaranController::class, 'up
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/cek-ktp', [PendaftaranController::class, 'cekKtp'])->name('cek.ktp');
+
+
+Route::get('/monitoring/{id}/panggil', [MonitoringController::class, 'panggil'])
+    ->name('monitoring.panggil');
+Route::get('/monitoring/{id}/selesai', [MonitoringController::class, 'selesai'])
+    ->name('monitoring.selesai');

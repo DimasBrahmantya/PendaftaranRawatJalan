@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Pasien;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
+use App\Events\PasienDipanggil;
 
 class PendaftaranController extends Controller
 {
@@ -55,7 +56,7 @@ class PendaftaranController extends Controller
         return redirect()->route('cetak', $pendaftaran->id);
     }
 
-    public function updateStatus($id, Request $request)
+   public function updateStatus($id, Request $request)
     {
         $pendaftaran = Pendaftaran::findOrFail($id);
 
@@ -68,6 +69,11 @@ class PendaftaranController extends Controller
         }
 
         $pendaftaran->save();
+
+        // 🔔 kirim event kalau dipanggil
+        if ($request->action === 'panggil') {
+            event(new PasienDipanggil($pendaftaran));
+        }
 
         return redirect()->route('monitoring.index')->with('success', 'Status berhasil diperbarui');
     }

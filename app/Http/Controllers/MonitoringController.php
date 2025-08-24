@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pendaftaran;
+use App\Events\PasienDipanggil;
 
 class MonitoringController extends Controller
 {
@@ -30,13 +31,20 @@ class MonitoringController extends Controller
         if ($sedangDipanggil) {
             $sedangDipanggil->status = 'Selesai';
             $sedangDipanggil->save();
+
+            // Broadcast pasien sebelumnya diselesaikan
+            broadcast(new PasienDipanggil($sedangDipanggil));
         }
 
         // Ubah status pasien baru jadi Dipanggil
         $antrian->status = 'Dipanggil';
         $antrian->save();
 
-        return redirect()->route('monitoring')->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} dipanggil!");
+        // Broadcast pasien baru dipanggil
+        broadcast(new PasienDipanggil($antrian));
+
+        return redirect()->route('monitoring')
+            ->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} dipanggil!");
     }
 
     // Tetap ada opsi ubah langsung ke selesai
@@ -46,6 +54,10 @@ class MonitoringController extends Controller
         $antrian->status = 'Selesai';
         $antrian->save();
 
-        return redirect()->route('monitoring')->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} selesai!");
+        // Broadcast supaya dashboard ikut update realtime
+        broadcast(new PasienDipanggil($antrian));
+
+        return redirect()->route('monitoring')
+            ->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} selesai!");
     }
 }
