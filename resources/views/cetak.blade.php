@@ -35,7 +35,7 @@
     🖨 Cetak
   </button>
 
-  <a href="{{ route('form') }}" 
+  <a href="{{ route('admisi.form') }}" 
     class="btn-back inline-block bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg ml-2 transition">
     ⬅ Kembali
   </a>

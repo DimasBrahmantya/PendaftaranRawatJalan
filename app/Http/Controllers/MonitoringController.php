@@ -43,7 +43,7 @@ class MonitoringController extends Controller
         // Broadcast pasien baru dipanggil
         broadcast(new PasienDipanggil($antrian));
 
-        return redirect()->route('monitoring')
+        return redirect()->route('admisi.monitoring')
             ->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} dipanggil!");
     }
 
@@ -57,7 +57,7 @@ class MonitoringController extends Controller
         // Broadcast supaya dashboard ikut update realtime
         broadcast(new PasienDipanggil($antrian));
 
-        return redirect()->route('monitoring')
+        return redirect()->route('admisi.monitoring')
             ->with('success', "Pasien $antrian->nomor_antrian - {$antrian->pasien->nama} selesai!");
     }
 }

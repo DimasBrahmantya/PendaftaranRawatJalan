@@ -89,7 +89,7 @@
             <td class="border border-gray-300 px-4 py-2">{{ $item->poli }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->tanggal_kunjungan }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->nomor_antrian }}</td>
-            <td class="border border-gray-300 px-4 py-2 text-center status">
+            <td class="border border-gray-300 px-4 py-2 text-center status" data-status="{{ $item->status }}">
               @if($item->status === 'Terdaftar')
                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>
               @elseif($item->status === 'Dipanggil')
@@ -112,7 +112,7 @@
   <!-- Pusher -->
   <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
   <script>
-    let suaraAktif = true;
+    let suaraAktif = false;
 
     function aktifkanSuara() {
       suaraAktif = true;
@@ -120,9 +120,9 @@
       let init = new SpeechSynthesisUtterance("Suara antrian diaktifkan");
       init.lang = "id-ID";
       speechSynthesis.speak(init);
-      alert("✅ Suara berhasil diaktifkan. Sekarang pemanggilan pasien akan dibacakan otomatis.");
+      alert("✅ Suara berhasil diaktifkan. Pemanggilan pasien akan dibacakan otomatis.");
 
-      // 🔁 Cek kalau reload masih ada antrian dipanggil
+      // 🔁 Mainkan suara jika ada antrian sekarang
       const current = document.querySelector("#current-antrian");
       if (current && current.dataset.status === "Dipanggil") {
         playSuara(current.dataset.nomor, current.dataset.poli);
@@ -136,6 +136,14 @@
       utterance.lang = "id-ID";
       speechSynthesis.speak(utterance);
     }
+
+    // Update tabel sesuai status saat halaman pertama kali di-load
+    document.querySelectorAll("td.status").forEach(td => {
+      const status = td.dataset.status;
+      if (status === "Terdaftar") td.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>';
+      else if (status === "Dipanggil") td.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>';
+      else td.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>';
+    });
 
     // Init Pusher
     var pusher = new Pusher("{{ env('PUSHER_APP_KEY') }}", {
@@ -163,20 +171,16 @@
           <p class="mt-2 text-gray-600">Pasien: ${pasien.pasien.nama}</p>
         `;
 
-        // 🔊 Suara otomatis
+        // 🔊 Mainkan suara jika sudah aktif
         playSuara(pasien.nomor_antrian, pasien.poli);
       }
 
       // Update status di tabel realtime
       const row = document.querySelector(`#row-${pasien.id} .status`);
       if (row) {
-        if (pasien.status === "Terdaftar") {
-          row.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>`;
-        } else if (pasien.status === "Dipanggil") {
-          row.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>`;
-        } else {
-          row.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>`;
-        }
+        if (pasien.status === "Terdaftar") row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>';
+        else if (pasien.status === "Dipanggil") row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>';
+        else row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>';
       }
     });
   </script>
