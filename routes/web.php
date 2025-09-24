@@ -7,24 +7,23 @@ use App\Http\Controllers\AdmisiController;
 use App\Http\Controllers\CetakController;
 use App\Http\Controllers\DashboardAdmisiController;
 
-// ----------------------------
+Route::get('/', function () {
+    return redirect()->route('admisi.login');
+});
+
 // PUBLIC ROUTES
-// ----------------------------
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::post('/daftar', [PendaftaranController::class, 'daftar'])->name('daftar');
 Route::get('/cetak/{id}', [CetakController::class, 'cetak'])->name('cetak');
 Route::get('/cek-ktp', [PendaftaranController::class, 'cekKtp'])->name('cek.ktp');
 
-// ----------------------------
 // LOGIN ADMISI
-// ----------------------------
 Route::get('/admisi/login', [AdmisiController::class, 'showLogin'])->name('admisi.login');
 Route::post('/admisi/login', [AdmisiController::class, 'login'])->name('admisi.login.submit');
 Route::get('/admisi/logout', [AdmisiController::class, 'logout'])->name('admisi.logout');
 
-// ----------------------------
+
 // PROTECTED ROUTES (Hanya Admisi)
-// ----------------------------
 Route::middleware('admisi.auth')->group(function () {
 
     // Dashboard Admisi

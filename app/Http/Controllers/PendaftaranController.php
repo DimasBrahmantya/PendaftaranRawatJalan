@@ -18,7 +18,7 @@ class PendaftaranController extends Controller
         $request->validate([
             'nama' => 'required',
             'no_ktp' => 'required',
-            'tanggal_lahir' => 'required|date',
+            'tanggal_lahir' => 'required|date|before:today|after:1900-01-01',
             'alamat' => 'required',
             'jenis_pembayaran' => 'required',
             'poli' => 'required',

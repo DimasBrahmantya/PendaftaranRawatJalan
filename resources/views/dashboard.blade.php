@@ -32,7 +32,7 @@
       </button>
     </form>
 
-    <!-- Antrian yang sedang dipanggil -->
+    <!-- Antrian Sekarang -->
     <div class="bg-white shadow-md rounded-lg p-6 mb-6" id="antrian-sekarang">
       <h2 class="text-xl font-semibold">🔔 Antrian Sekarang</h2>
       @if($antrianSekarang)
@@ -40,12 +40,12 @@
            data-id="{{ $antrianSekarang->id }}"
            data-nomor="{{ $antrianSekarang->nomor_antrian }}"
            data-poli="{{ $antrianSekarang->poli }}"
-           data-nama="{{ $antrianSekarang->pasien->nama }}"
+           data-nama="{{ $antrianSekarang->pasien->nama ?? '-' }}"
            data-status="{{ $antrianSekarang->status }}"
            class="text-4xl font-bold text-red-600 mt-4">
-          Nomor {{ $antrianSekarang->nomor_antrian }} - {{ $antrianSekarang->poli }}
+          Nomor {{ $antrianSekarang->nomor_antrian ?? '-' }} - {{ $antrianSekarang->poli }}
         </p>
-        <p class="mt-2 text-gray-600">Pasien: {{ $antrianSekarang->pasien->nama }}</p>
+        <p class="mt-2 text-gray-600">Pasien: {{ $antrianSekarang->pasien->nama ?? '-' }}</p>
       @else
         <p class="text-gray-500 mt-4">Belum ada antrian yang dipanggil.</p>
       @endif
@@ -85,10 +85,10 @@
           @forelse($pendaftaran as $item)
           <tr id="row-{{ $item->id }}">
             <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ $item->pasien->nama }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ $item->pasien->nama ?? '-' }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->poli }}</td>
             <td class="border border-gray-300 px-4 py-2">{{ $item->tanggal_kunjungan }}</td>
-            <td class="border border-gray-300 px-4 py-2">{{ $item->nomor_antrian }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ $item->nomor_antrian ?? '-' }}</td>
             <td class="border border-gray-300 px-4 py-2 text-center status" data-status="{{ $item->status }}">
               @if($item->status === 'Terdaftar')
                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>
@@ -109,20 +109,17 @@
     </div>
   </div>
 
-  <!-- Pusher -->
+  <!-- Pusher & Suara -->
   <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
   <script>
     let suaraAktif = false;
 
     function aktifkanSuara() {
       suaraAktif = true;
-      // trigger izin suara
       let init = new SpeechSynthesisUtterance("Suara antrian diaktifkan");
       init.lang = "id-ID";
       speechSynthesis.speak(init);
       alert("✅ Suara berhasil diaktifkan. Pemanggilan pasien akan dibacakan otomatis.");
-
-      // 🔁 Mainkan suara jika ada antrian sekarang
       const current = document.querySelector("#current-antrian");
       if (current && current.dataset.status === "Dipanggil") {
         playSuara(current.dataset.nomor, current.dataset.poli);
@@ -137,7 +134,7 @@
       speechSynthesis.speak(utterance);
     }
 
-    // Update tabel sesuai status saat halaman pertama kali di-load
+    // Update tabel sesuai status
     document.querySelectorAll("td.status").forEach(td => {
       const status = td.dataset.status;
       if (status === "Terdaftar") td.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>';
@@ -145,42 +142,38 @@
       else td.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>';
     });
 
-    // Init Pusher
-    var pusher = new Pusher("{{ env('PUSHER_APP_KEY') }}", {
-      cluster: "{{ env('PUSHER_APP_CLUSTER') }}"
-    });
-
+    // Pusher Realtime
+    var pusher = new Pusher("{{ env('PUSHER_APP_KEY') }}", { cluster: "{{ env('PUSHER_APP_CLUSTER') }}" });
     var channel = pusher.subscribe('antrian');
+
     channel.bind('App\\Events\\PasienDipanggil', function(data) {
       let pasien = data.pendaftaran;
 
-      // Update "Antrian Sekarang"
-      const antrianBox = document.querySelector("#antrian-sekarang");
-      if (antrianBox && pasien.status === "Dipanggil") {
+      // Update Antrian Sekarang
+      if (pasien.status === "Dipanggil") {
+        const antrianBox = document.querySelector("#antrian-sekarang");
         antrianBox.innerHTML = `
           <h2 class="text-xl font-semibold">🔔 Antrian Sekarang</h2>
           <p id="current-antrian"
              data-id="${pasien.id}"
-             data-nomor="${pasien.nomor_antrian}"
+             data-nomor="${pasien.nomor_antrian ?? '-'}"
              data-poli="${pasien.poli}"
-             data-nama="${pasien.pasien.nama}"
+             data-nama="${pasien.pasien?.nama ?? '-'}"
              data-status="${pasien.status}"
              class="text-4xl font-bold text-red-600 mt-4">
-            Nomor ${pasien.nomor_antrian} - ${pasien.poli}
+            Nomor ${pasien.nomor_antrian ?? '-'} - ${pasien.poli}
           </p>
-          <p class="mt-2 text-gray-600">Pasien: ${pasien.pasien.nama}</p>
+          <p class="mt-2 text-gray-600">Pasien: ${pasien.pasien?.nama ?? '-'}</p>
         `;
-
-        // 🔊 Mainkan suara jika sudah aktif
         playSuara(pasien.nomor_antrian, pasien.poli);
       }
 
-      // Update status di tabel realtime
-      const row = document.querySelector(`#row-${pasien.id} .status`);
-      if (row) {
-        if (pasien.status === "Terdaftar") row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>';
-        else if (pasien.status === "Dipanggil") row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>';
-        else row.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>';
+      // Update tabel
+      const rowStatus = document.querySelector(`#row-${pasien.id} .status`);
+      if (rowStatus) {
+        if (pasien.status === "Terdaftar") rowStatus.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Menunggu</span>';
+        else if (pasien.status === "Dipanggil") rowStatus.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Dipanggil</span>';
+        else rowStatus.innerHTML = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Selesai</span>';
       }
     });
   </script>

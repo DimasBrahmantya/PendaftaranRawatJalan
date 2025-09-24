@@ -9,48 +9,70 @@
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center py-10">
 
-  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+    <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-semibold text-gray-800">Form Pendaftaran Rawat Jalan</h2>
-      <a href="{{ route('admisi.dashboard') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition">← Dashboard</a>
+      <h2 class="text-2xl font-semibold text-gray-800">📝 Form Pendaftaran Rawat Jalan</h2>
+      <a href="{{ route('admisi.dashboard') }}" 
+         class="bg-blue-500 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-600 transition">
+        ← Dashboard
+      </a>
     </div>
 
+    <!-- Form -->
     <form action="{{ route('daftar') }}" method="POST" class="space-y-5">
       @csrf
 
+      <!-- Nama -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">Nama</label>
+        <label class="block text-gray-700 font-medium mb-1">Nama</label>
         <input type="text" name="nama" placeholder="Masukkan nama lengkap"
-               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                      focus:ring-2 focus:ring-blue-500"
                required>
       </div>
 
+      <!-- No KTP -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">No KTP</label>
-        <input type="text" name="no_ktp" id="no_ktp" maxlength="10" pattern="\d{10}" placeholder="Masukkan nomor KTP (10 digit)"
-               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <label class="block text-gray-700 font-medium mb-1">No KTP</label>
+        <input type="text" name="no_ktp" id="no_ktp" maxlength="10" 
+               placeholder="Masukkan nomor KTP (10 digit)"
+               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                      focus:ring-2 focus:ring-blue-500"
                required>
-        <span id="ktp-warning" class="text-red-600 text-sm hidden mt-1">No KTP sudah terdaftar!</span>
+        <span id="ktp-warning" class="text-red-600 text-sm hidden mt-1 font-medium">
+          ⚠️ No KTP sudah terdaftar!
+        </span>
       </div>
 
+      <!-- Tanggal Lahir -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">Tanggal Lahir</label>
-        <input type="date" name="tanggal_lahir"
-               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <label class="block text-gray-700 font-medium mb-1">Tanggal Lahir</label>
+        <input type="date" name="tanggal_lahir" id="tanggal_lahir" 
+               min="1900-01-01" max="{{ date('Y-m-d') }}"
+               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                      focus:ring-2 focus:ring-blue-500"
                required>
+        <span id="lahir-warning" class="text-red-600 text-sm hidden mt-1 font-medium">
+          ⚠️ Tanggal lahir tidak valid!
+        </span>
       </div>
 
+      <!-- Alamat -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">Alamat</label>
+        <label class="block text-gray-700 font-medium mb-1">Alamat</label>
         <textarea name="alamat" rows="3" placeholder="Masukkan alamat lengkap"
-                  class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                         focus:ring-2 focus:ring-blue-500"
                   required></textarea>
       </div>
 
+      <!-- Jenis Pembayaran -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">Jenis Pembayaran</label>
+        <label class="block text-gray-700 font-medium mb-1">Jenis Pembayaran</label>
         <select name="jenis_pembayaran" id="jenis_pembayaran"
-                class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                       focus:ring-2 focus:ring-blue-500"
                 required>
           <option value="">-- Pilih Jenis Pembayaran --</option>
           <option value="BPJS">BPJS</option>
@@ -58,16 +80,20 @@
         </select>
       </div>
 
+      <!-- No BPJS (hidden kalau bukan BPJS) -->
       <div id="no_bpjs_wrapper" class="hidden">
-        <label class="block text-gray-600 font-medium mb-1">No BPJS</label>
+        <label class="block text-gray-700 font-medium mb-1">No BPJS</label>
         <input type="text" name="no_bpjs" id="no_bpjs" placeholder="Masukkan nomor BPJS"
-               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                      focus:ring-2 focus:ring-blue-500">
       </div>
 
+      <!-- Poli -->
       <div>
-        <label class="block text-gray-600 font-medium mb-1">Poli</label>
+        <label class="block text-gray-700 font-medium mb-1">Poli</label>
         <select name="poli"
-                class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none 
+                       focus:ring-2 focus:ring-blue-500"
                 required>
           <option value="">-- Pilih Poli Tujuan --</option>
           <option value="Poli Umum">Poli Umum</option>
@@ -84,10 +110,12 @@
         </select>
       </div>
 
+      <!-- Tombol Submit -->
       <div class="text-right">
         <button type="submit"
-                class="bg-green-600 text-white px-6 py-2 rounded-xl shadow hover:bg-green-700 transition">
-          Daftar
+                class="bg-green-600 text-white px-6 py-2 rounded-xl shadow hover:bg-green-700 
+                       active:scale-95 transition">
+          ✅ Daftar
         </button>
       </div>
     </form>
@@ -101,11 +129,15 @@
       const noKtpInput = document.getElementById('no_ktp');
       const ktpWarning = document.getElementById('ktp-warning');
       const form = document.querySelector('form');
+      const tanggalLahirInput = document.getElementById('tanggal_lahir');
+      const lahirWarning = document.getElementById('lahir-warning');
 
+      // Validasi input KTP hanya angka max 10 digit
       noKtpInput.addEventListener('input', function () {
         this.value = this.value.replace(/\D/g, '').slice(0, 10);
       });
 
+      // Cek KTP ke server
       noKtpInput.addEventListener('blur', function () {
         if (this.value.length === 10) {
           $.get("{{ route('cek.ktp') }}", {
@@ -113,20 +145,17 @@
             nama: document.querySelector('input[name="nama"]').value
           }, function (res) {
             if (!res.valid){
-              ktpWarning.textContent = "No KTP sudah digunakan oleh pasien lain!";
               ktpWarning.classList.remove('hidden');
-              form.querySelector('button[type="submit"]').disabled = true;
-            } else {
-              ktpWarning.classList.add('hidden');
-              form.querySelector('button[type="submit"]').disabled = false;
+              form.querySelector('button[type="submit"]');
             }
           });
         } else {
           ktpWarning.classList.add('hidden');
-          form.querySelector('button[type="submit"]').disabled = false;
+          form.querySelector('button[type="submit"]');
         }
       });
 
+      // Tampilkan field No BPJS jika pilih BPJS
       jenisPembayaran.addEventListener('change', function () {
         if (this.value === 'BPJS') {
           noBpjsWrapper.classList.remove('hidden');
@@ -135,6 +164,21 @@
           noBpjsWrapper.classList.add('hidden');
           noBpjsInput.removeAttribute('required');
           noBpjsInput.value = '';
+        }
+      });
+
+      // Validasi tanggal lahir
+      tanggalLahirInput.addEventListener('input', function () {
+        const val = new Date(this.value);
+        const now = new Date();
+        const min = new Date('1900-01-01');
+
+        if (this.value && (val > now || val < min)) {
+          lahirWarning.classList.remove('hidden');
+          this.classList.add('border-red-500');
+        } else {
+          lahirWarning.classList.add('hidden');
+          this.classList.remove('border-red-500');
         }
       });
     });
