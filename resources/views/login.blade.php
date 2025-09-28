@@ -32,7 +32,26 @@
     </form>
 
     <p class="text-gray-400 text-sm text-center mt-4">Masukkan username dan password Anda untuk masuk.</p>
+    
+    <p class="text-center text-sm text-gray-600 mt-5">
+      Belum punya akun?
+      <a href="{{ route('register') }}" class="text-blue-600 font-medium hover:underline">
+        Daftar di sini
+      </a>
+    </p>
+
   </div>
 
 </body>
 </html>
+
+<!-- <!doctype html>
+<html lang="en">
+<head>
+    @viteReactRefresh
+    @vite('resources/js/main.tsx')
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html> -->

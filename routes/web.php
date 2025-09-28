@@ -22,6 +22,8 @@ Route::get('/admisi/login', [AdmisiController::class, 'showLogin'])->name('admis
 Route::post('/admisi/login', [AdmisiController::class, 'login'])->name('admisi.login.submit');
 Route::get('/admisi/logout', [AdmisiController::class, 'logout'])->name('admisi.logout');
 
+Route::get('/admisi/register', [AdmisiController::class, 'showRegisterForm'])->name('register');
+Route::post('/admisi/register', [AdmisiController::class, 'register'])->name('register.submit');
 
 // PROTECTED ROUTES (Hanya Admisi)
 Route::middleware('admisi.auth')->group(function () {
